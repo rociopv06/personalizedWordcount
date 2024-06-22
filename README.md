@@ -1,0 +1,2 @@
+# personalizedWordcount
+Google Docs extension
