@@ -1,14 +1,45 @@
-x<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <base target="_top">
   <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
   <style>
+    input[type="radio"] {
+      display: none;
+    }
+    input[type="radio"]:not(:disabled) + label {
+      cursor: pointer;
+    }
+    label {
+      font-family: "Google Sans", Roboto, Arial, sans-serif;
+      height: 15px;
+      width: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      border: 1px solid grey;
+      border-radius: 5px;
+      padding: 1rem;
+      margin-right: 5px;
+      margin-left: 5px;
+      text-align: center;
+      position: relative;
+    }
+    input[type="radio"]:checked + label {
+      padding: 1.15rem;
+      box-shadow: 0px 3px 5px 2px grey;
+    }
+    .row {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+    }
     .branding-below {
       bottom: 56px;
       top: 0;
     }
-    .standardButton, .tutorialButton, .wordcountButton{
+    .standardButton, .tutorialButton, .wordcountButton {
       margin: 5px;
       align-items: center;
       appearance: none;
@@ -33,28 +64,35 @@ x<!DOCTYPE html>
       user-select: none;
       -webkit-user-select: none;
       touch-action: manipulation;
-      width: calc(100% - 100px);
+      width: 80%;
     }
-    .explanationTrigger{
+    .explanationTrigger {
       height: 1.3em;
       width: 1.3em;
       background-color: black;
-      color:white;
+      color: white;
       border-radius: 50%;
       display: flex;
-      margin-left: 90%;
+      position: absolute; 
+      right: 0; 
+      margin-right: 3%;
       flex-direction: row;
-      align-items:center;
+      align-items: center;
       justify-content: center;
       cursor: pointer;
       font-family: "Google Sans", Roboto, Arial, sans-serif;
       font-size: 1em;
     }
+    .explanation {
+      font-family: "Google Sans", Roboto, Arial, sans-serif;
+      display: none;
+      text-align: left;
+    }
     .tutorialButton {
       border-radius: 20px;
     }
-    .wordcountButton{
-      visibility:hidden;
+    .wordcountButton {
+      visibility: hidden;
     }
     .sidebar {
       display: flex;
@@ -62,7 +100,7 @@ x<!DOCTYPE html>
       align-items: center;
       text-align: center;
     }
-    .bigText{
+    .bigText {
       font-family: "Google Sans", Roboto, Arial, sans-serif;
       margin: 20px 0px 0px 0px;
       font-size: 2em;
@@ -82,71 +120,130 @@ x<!DOCTYPE html>
       text-align: center;
       width: 100%;
     }
-    .explanation {
-      display:none;
-      text-align: left;
-    }
-    input[type="radio"] {
-      display: none;
-    }
-    input[type="radio"]:not(:disabled) + label {
+    .settingsButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      font-family: "Google Sans", Roboto, Arial, sans-serif;
+      font-size: 1em;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin: 10px;
+      height: 3em;
+      width: 3em;
+      box-shadow: 0px 3px 5px 2px hsla(150, 5%, 75%, 1);
+      transition: background 0.3s, transform 0.3s;
+      position: absolute;
+      left:0;
+    }
+    .settingsButton:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+    
+    .parent{
+      display: flex;
+      height: 5em;
     }
 
-    label {
-      font-family: "Google Sans", Roboto, Arial, sans-serif;
-      height: 15px;
-      width: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: white;
-      border: 1px solid grey;
-      border-radius: 5px;
-      padding: 1rem;
-      margin-right: 5px;
-      margin-left: 5px;
-      text-align: center;
+    .gear{
       position: relative;
+      width: 2em;
+      height: 2em;
+      margin: auto;
+      background: white;
+      border-radius: 50%;
     }
-    input[type="radio"]:checked + label {
-      padding: 1.15rem;
-      box-shadow: 0px 3px 5px 2px grey;
+
+    .gear .center{
+      position: absolute;
+      top: 0.5em;
+      left: 0.5em;
+      z-index: 10;
+      width: 1em;
+      height: 1em;
+      transition: background 0.3s, transform 0.3s;
+      background: black;
+      border-radius: 50%;
     }
-    .row {
-      display: flex;
-      flex-direction: row;
-      align-items:center;
+    .settingsButton:hover .gear .center {
+      background: #333;
+      transform: scale(1.05);
     }
+
+    .tooth{
+      position: absolute;
+      top: -0.25em;
+      left: 0.75em;
+      z-index: 1;
+      width: 0.45em;
+      height: 2.5em;
+      background:white;
+    }
+
+.tooth:nth-child(2){
+  transform: rotate(45deg);
+}
+
+.tooth:nth-child(3){
+  transform: rotate(90deg);
+}
+
+.tooth:nth-child(4){
+  transform: rotate(135deg);
+}
   </style>
 </head>
 <body>
   <div class="sidebar branding-below">
     <form>
       <section class="row" id="row">
-    
-          <input type="radio" id="manual" name="select" value="manual" >
-          <label for="manual">
-            <p>Manual</p>
-          </label>
-          <h2>Select Mode</h2>
-          <input type="radio" id="auto" name="select" value="auto" checked>
-          <label for="auto">
-            <p>Auto</p>
-          </label>
-    
+        <input type="radio" id="manual" name="select" value="manual">
+        <label for="manual">
+          <p>Manual</p>
+        </label>
+        <h2>Select Mode</h2>
+        <input type="radio" id="auto" name="select" value="auto" checked>
+        <label for="auto">
+          <p>Auto</p>
+        </label>
       </section>
       <span class="explanationTrigger" type="button" id="helpMode">?</span>
-      <p class="explanation"id="explanationMode">Switching to manual will pause the wordcount and it will only update when you click the "Update Button" that will appear if you switch modes. Only switch to manual if you notice your laptop heating up.</p>
+      <p class="explanation" id="explanationMode">
+        Switching to manual will pause the wordcount and it will only update when you click the "Update Button" that will appear if you switch modes. Only switch to manual if you notice your laptop heating up.
+      </p>
       <button class="wordcountButton" type="button" id="wordcountButton">Update Wordcount</button>
       <br>
-      <p class="bigText">Modified Wordcount:</p>
+      <p class="bigText">Modified Word Count:</p>
       <p id="excludeWordcount" class="bigNumber"></p>
       <span class="explanationTrigger" type="button" id="helpModifiedWordcount">?</span>
-      <p class="explanation"id="explanationModifiedWordcount">The Modified Wordcount does not count words highlighted in yellow.</p>
-      <br>
-      <p class="bigText">General Wordcount:</p>
+      <p class="explanation" id="explanationModifiedWordcount">The Modified Wordcount does not count words highlighted in yellow.</p>
+      <p class="bigText">Total Word Count:</p>
       <p id="generalWordcount" class="bigNumber"></p>
+      <br>
+      <br>
+      <br>
+      <br>
+      <section class="row">
+        
+        <span class="settingsButton" type="button" id="openSettings">
+          <div class="parent" id="openSettings">
+            <div class="gear">
+              <div class="center"></div>
+              <div class="tooth"></div>
+              <div class="tooth"></div>
+              <div class="tooth"></div>
+              <div class="tooth"></div>
+            </div>  
+          </div>
+        </span>
+        <button class="standardButton" type="button" id="autoHighlight">Auto-highlight</button>
+        <span class="explanationTrigger" type="button" id="helpAutoHighlight">?</span>
+      </section>
+      <p class="explanation" id="explanationAutoHighlight">This feature can automatically highlight citations, tables, your bibliography and more. Adjust the settings to customise.</p>
       <br>
       <button class="standardButton" type="button" id="removeYellowHighlight">Remove yellow highlighting</button>
       <span class="explanationTrigger" type="button" id="helpRemoveYellowHighlight">?</span>
@@ -154,19 +251,21 @@ x<!DOCTYPE html>
     </form>
   </div>
   <div class="sidebar bottom">
-    <button id="openTutorial" class="tutorialButton" type="button">Tutorial</button>
+    <button color = "gray" id="openTutorial" class="tutorialButton" type="button">Tutorial</button>
+    <a target="_blank" rel="noopener" href="https://forms.gle/syKJS4eqq5SwizBWA">Report a bug/Feedback</a>
   </div>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script>
-    
-    // When the document is loaded set the following:
     $(document).ready(function() {
       $('#removeYellowHighlight').click(removeYellowHighlight);
       $('#openTutorial').click(openTutorial);
       $('#wordcountButton').click(wordcount);
+      $('#openSettings').click(openSettings);
       $('#row input[type="radio"]').change(mode);
-      mode(); // Run to set the intervals that make auto mode (set by default) work
-  
+      $('#autoHighlight').click(loadFeatures);
+      $('.explanation').hide();
+      mode();
+      google.script.run.getProperties();
     });
 
     function removeYellowHighlight() {
@@ -178,68 +277,57 @@ x<!DOCTYPE html>
     }
 
     function openTutorial() {
-      google.script.run.showPopUp();
+      google.script.run.showPopUp('tutorialPopUp', 'Tutorial', 700, 400);
     }
 
-    // Success handler, run after wordcount() to display the wordcount
+    function openSettings() {
+      google.script.run.showPopUp('settingsPopUp', 'Settings', 600, 300);
+    }
+
     function updateCounts(counts) {
       document.getElementById("generalWordcount").textContent = counts[0];
       document.getElementById("excludeWordcount").textContent = counts[1];
     }
 
-    // To switch modes
+    function loadFeatures() {
+      google.script.run.withSuccessHandler(scanHighlight).getProperties();
+    }
+    function scanHighlight(settings) {
+      google.script.run.scanHighlight(settings);
+      // Process citations
+      //if(settings.citationStyle)
+
+    }
+
     var interval;
     function mode() {
-      // Delete interval as needed for manual mode and also to stop two intervals from being
-      //created if the user selects the auto mode twice
       clearInterval(interval);
-
       if (document.getElementById("manual").checked) {
-        // Make the Update Wordcount button visible
-        document.getElementById("wordcountButton").style.visibility = "visible"; 
-      } else { // Due to it being a radio button if it's not manual it's auto
-        // Hide the Update Wordcount button as it serves no purpose
+        document.getElementById("wordcountButton").style.visibility = "visible";
+      } else {
         document.getElementById("wordcountButton").style.visibility = "hidden";
-        // Create interval to automatically run wordcount() every second (1000ms)
         interval = setInterval(function() {
           wordcount();
-          }, 1000);
+        }, 1000);
       }
     }
 
-    // Hover-over to display explanation messages
-  
-    // Modified Wordcount explanation
-
-    // Display message when mouse enters "?"
-    helpModifiedWordcount.addEventListener('mouseenter', 
-    function(){document.getElementById("explanationModifiedWordcount").style.display = "flex";});
-    // Hide and stop from affecting HTML structure when mouse exits "?"
-    helpModifiedWordcount.addEventListener('mouseout', function(){
-    document.getElementById("explanationModifiedWordcount").style.display = "none";
-    });
-
-    // Removing yellow highlighting explanation
-
-    // Display message when mouse enters "?"
-    helpRemoveYellowHighlight.addEventListener('mouseenter', function(){
-      document.getElementById("explanationRemoveYellowHighlight").style.display = "flex";
-    })
-    // Hide and stop from affecting HTML structure when mouse exits "?"
-    helpRemoveYellowHighlight.addEventListener('mouseout', function(){
-      document.getElementById("explanationRemoveYellowHighlight").style.display = "none";
-    })
-
-    // Modes explanation
-
-    // Display message when mouse enters "?"
-    helpMode.addEventListener('mouseenter', function(){
-      document.getElementById("explanationMode").style.display = "flex";
-      })
-  // Hide and stop from affecting HTML structure when mouse exits "?"
-    helpMode.addEventListener('mouseout', function(){
-      document.getElementById("explanationMode").style.display = "none";
-      })
+    $('#helpModifiedWordcount').hover(
+      function() { $('#explanationModifiedWordcount').show(); },
+      function() { $('#explanationModifiedWordcount').hide(); }
+    );
+    $('#helpRemoveYellowHighlight').hover(
+      function() { $('#explanationRemoveYellowHighlight').show(); },
+      function() { $('#explanationRemoveYellowHighlight').hide(); }
+    );
+    $('#helpMode').hover(
+      function() { $('#explanationMode').show(); },
+      function() { $('#explanationMode').hide(); }
+    );
+    $('#helpAutoHighlight').hover(
+      function() { $('#explanationAutoHighlight').show(); },
+      function() { $('#explanationAutoHighlight').hide(); }
+    );
   </script>
 </body>
 </html>
