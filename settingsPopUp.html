@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <style>
+      body {
+      font-family: "Google Sans", Roboto, Arial, sans-serif;
+      font-size: 1.2em;
+      margin: 20px;
+    }
+    .container {
+      width: 300px;
+    }
+    .section {
+      margin-bottom: 10px;
+    }
+    .checkbox-label {
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+    .select {
+      appearance: none;
+      border: none;
+      border-bottom: 1px solid lightgray;
+      background-color: white;
+      outline: none;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 5px 10px;
+      width: 20%;
+      box-sizing: border-box;
+    }
+    .select:hover {
+      border-bottom: 1px solid darkgray;
+    }
+    .input-text {
+      border: 1px solid lightgray;
+      border-radius: 4px;
+      padding: 5px;
+      width: calc(100% - 10px); /* Adjust for padding */
+      box-sizing: border-box;
+    }
+    .space{
+      padding-top:2%;
+      
+    }
+
+  </style>
+</head>
+<body>
+  <div class="space">
+  <input  type="checkbox" id="citations"/>
+  <label  for="citations">Automatically remove citations of style </label>
+  <select id="citationStyle" class="select">
+    <option value="" selected disabled hidden>Select one</option>
+    <option value="APA">APA</option>
+    <option value="MLA">MLA</option>
+    <option value="Chicago Notes">Chicago (Notes and Bibliography)</option>
+    <option value="Chicago Author">Chicago (Author-Date)</option>
+  </select>
+  <div>
+  <br>
+  <div class="space">
+  <input  type="checkbox" id="tables"/>
+  <label  for="tables">Automatically remove tables  </label>
+  </div>
+  <br>
+  <div class="space">
+  <input  type="checkbox" id="bibliography"/>
+  <label  for="bibliography">Automatically remove from  </label>
+  <select id="bibliographyStyle" class="select">
+    <option value="" selected disabled hidden>Select one</option>
+    <option value="bibliography">Bibliography</option>
+    <option value="references">References</option>
+  </select>
+  <label  for="bibliography"> on.</label>
+  </div>
+  <br>
+  <div class="space">
+  <input  type="checkbox" id="customizable"/>
+  <label  for="customizable">Automatically remove from  </label>
+  <input type="text" id="customizableName"/>
+  <label  for="customizable"> on.</label>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+
+      loadSettings();
+     
+      $('#citationStyle').change(citations);
+      $('#citations').click(citations);
+      $('#tables').click(tables);
+      $('#bibliographyStyle').change(bibliography);
+      $('#bibliography').click(bibliography);
+      $('#customizableName').on('input', customizable);
+      //$('#customizableName').input(customizable);
+      $('#customizable').click(customizable);
+    });
+
+    function loadSettings(){
+
+      google.script.run.withSuccessHandler(checkboxes).getProperties();
+    }
+    function checkboxes(settings){
+
+      if(settings.citationStyle!=""){
+
+        document.getElementById("citationStyle").value=settings.citationStyle;
+        document.getElementById("citations").checked=true;
+      }
+      if(settings.excludeTables=="y"){
+        document.getElementById("tables").checked=true;
+      }
+      if(settings.bibliographyStyle!=""){
+        document.getElementById("bibliographyStyle").value=settings.bibliographyStyle;
+        document.getElementById("bibliography").checked=true;
+      }
+      if(settings.customizableName!=""){
+  
+        document.getElementById("customizableName").value=settings.customizableName;
+        document.getElementById("customizable").checked=true;
+      }
+   
+    }
+    
+
+    function citations() {
+      if(document.getElementById("citations").checked) {
+        google.script.run.setProperties('citationStyle', document.getElementById("citationStyle").value);
+      } else {
+        google.script.run.setProperties('citationStyle',"");
+      }
+    }
+
+    function tables() {
+      if(document.getElementById("tables").checked) {
+        google.script.run.setProperties('excludeTables', "y");
+      } else {
+        google.script.run.setProperties('excludeTables', "n");
+      }
+    }
+
+
+    function bibliography() {
+      if(document.getElementById("bibliography").checked) {
+        google.script.run.setProperties('bibliographyStyle', document.getElementById("bibliographyStyle").value);
+      } else {
+        google.script.run.setProperties('bibliographyStyle', "");
+      }
+    }
+
+    function customizable() {
+
+      if(document.getElementById("customizable").checked) {
+        google.script.run.setProperties('customizableName', document.getElementById("customizableName").value);
+
+      
+      } else {
+        google.script.run.setProperties('customizableName', null);
+
+      }
+    }
+  </script>
+</body>
+</html>
