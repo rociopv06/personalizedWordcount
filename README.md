@@ -3,5 +3,5 @@ Google Docs Add-On which serves as a wordcount that skips the text highlighted i
 
 Check the website [here](https://sites.google.com/view/personalizedwordcount/) 
 
-Link to download will be soon available
+Link to download will soon be available
 
