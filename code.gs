@@ -21,8 +21,8 @@ function onOpen(e) {
   DocumentApp.getUi().createAddonMenu()
       .addItem('Start', 'showSidebar')
       .addToUi();
-  google.html.run.mode();
 
+  
 }
 
 
@@ -56,8 +56,123 @@ function showSidebar() {
   DocumentApp.getUi().showSidebar(ui);
 }
 
+function getProperties() {
+  const userProperties = PropertiesService.getUserProperties();
+
+  // Returning an object with the fetched properties
+  return {
+    citationStyle: userProperties.getProperty('citationStyle'),
+    excludeTables: userProperties.getProperty('excludeTables'),
+    bibliographyStyle: userProperties.getProperty('bibliographyStyle'),
+    customizableName: userProperties.getProperty('customizableName'),
+  };
+}
+function setProperties(key, value) {
+  const userProperties = PropertiesService.getUserProperties();
+  userProperties.setProperty(key,value);
+}
+function highlightTables(){
+
+  const body = DocumentApp.getActiveDocument().getBody(); 
+  const tables = body.getTables(); // Get all tables in the document
+  var found = false;
+  tables.forEach(function(table) {
+    found = true;
+    var style = {};
+    style[DocumentApp.Attribute.BACKGROUND_COLOR] = colorPreference;
+    table.setAttributes(style);
+  });
+  if (!found){
+    DocumentApp.getUi().alert("No tables were found in your document. If this is an error please report the bug");
+  }
+
+}
+function highlightFromWordOn(word){
+  const body = DocumentApp.getActiveDocument().getBody();
+  const textElement= body.editAsText()
+  const text = textElement.getText();
+  const reg = new RegExp(word, 'gi');
+  const matches = Array.from(text.matchAll(reg));
+  
+  const lastMatch = matches[matches.length-1];
+  if (lastMatch==null) {
+    DocumentApp.getUi().alert("The word '" + word + "' was not found in your document so Auto-highlighting failed");
+    return;
+  }
+
+  textElement.setBackgroundColor(lastMatch.index, text.length - 1, colorPreference);
+
+}
+function highlightCitations(style){
+  let reg;
+  
+  if (style == "APA") {
+    reg = /(\([\w .]+,[ndABC \d]+(,.+)?\)|\(\d+[ABC ]*\))/g;
+  } else if (style == "MLA") {
+    reg = /\(([A-Z]{1}[\w\s]+)\)/g;
+  } else if (style == "Chicago Author") {
+    reg = /\([\w ]+, \d{1}.?\)/g;
+  } else {
+    return; // Exit if style is not recognized
+  }
+
+  const body = DocumentApp.getActiveDocument().getBody(); 
+  const paragraphs = body.getParagraphs(); // Get all paragraphs in the document
+  var found = false;
+  paragraphs.forEach(function(paragraph) {
+    const textElement = paragraph.editAsText();
+    const text = textElement.getText();
+    
+    const matches = text.matchAll(reg);
+    for (const match of matches) {
+      found = true;
+      const startOffset = match.index;
+      const endOffset = match.index + match[0].length-1;
+      textElement.setBackgroundColor(startOffset, endOffset, colorPreference); 
+    }
+  });
+  if (!found){
+    DocumentApp.getUi().alert("No citations were found. Please go to settings and re-select your citation style or report the bug");
+  }
+}
+
+function scanHighlight(settings) {
+ 
+
+  if (settings.citationStyle == ""&& settings.excludeTables =="n" 
+   && settings.bibliographyStyle =="" && settings.customizableName=="") {
+
+    DocumentApp.getUi().alert("No properties were selected to automatically highlight. Please go to settings");
+    return; // Exit if style is empty
+  }
+  if(settings.excludeTables=="y"){
+
+    highlightTables();
+  }
+  if(settings.bibliographyStyle!=""){
+
+    highlightFromWordOn(settings.bibliographyStyle);
+  }
+  if(settings.customizableName!=""){
+    highlightFromWordOn(settings.customizableName);
+  }
+  if(settings.citationStyle!=""){
+    highlightCitations(settings.citationStyle);
+  }
+
+}
+
+/*
+REGEX:
+APA match dates in parenthesis, also matches dates such as 20 BC  /\(\d[+| |\w]+\)/
+APA matches author + date  /\([\w .]+,[ndbca \d]+(,.+)?\)/
+MLA match /\(([A-Z]{1}[\w\s]+)\)/
+Chicago author /\([\w ]+, \d{1}.?\)/
+*/
+
 
 function wordcount() {
+
   const doc = DocumentApp.getActiveDocument();
   var generalCount = 0;
   var excludeCount = 0;
@@ -77,7 +192,7 @@ function wordcount() {
       const words = text.split(/\s+/); // Split by spaces
       
       words.forEach(function(word) {
-        Logger.log('word: '+ word);
+
         // Check that the word is alphanumeric and not a punctuation symbol
           if(includesAlphanumeric(word)){
             generalCount++;
@@ -91,7 +206,7 @@ function wordcount() {
           }
         }
         else{
-            Logger.log('no alphanumeric')
+
         }
       });
       
@@ -99,8 +214,7 @@ function wordcount() {
   });
 
   const modifiedCount = generalCount-excludeCount;
-  Logger.log('General Count: ' + generalCount);
-  Logger.log('Exclude Count: ' + excludeCount);
+
   return [generalCount,modifiedCount];// Return an array with the General Count at 0 and the modified at 1
 }
 function removeYellowHighlight(){
@@ -137,20 +251,29 @@ function removeYellowHighlight(){
 }
 function includesAlphanumeric(word){
   // If any of the characters in the word are alphanumeric return true
+  if (word.match(/[0-9A-Za-zÀ-ÖØ-öø-ÿ]/)){// Regex including all letters (with accents) and numbers 
+    //this does not match all alphabets so it is due a future fix to include more alphabets
+    //old regex: /^[0-9a-z]+$/i
+    return true;
+    }
+  return false;
+  /*
   for (const char of word) {
-    if (char.match(/^[0-9a-z]+$/i)){// Regex including all letters and numbers
+    if (char.match(/[0-9a-zA-Z]/i)){// Regex including all letters and numbers 
+    //old regex: /^[0-9a-z]+$/i
       return true;
     }
   }
   return false;
+  */
 }
 
-function showPopUp() {// To create the pop up
-  var html = HtmlService.createHtmlOutputFromFile('tutorialPopUp')
-      .setWidth(700)
-      .setHeight(400);
+function showPopUp(fileName, title, width, height) {// To create the pop up
+  var html = HtmlService.createHtmlOutputFromFile(fileName)
+      .setWidth(width)
+      .setHeight(height);
   DocumentApp.getUi() 
-      .showModalDialog(html, 'Tutorial');
+      .showModalDialog(html, title);
 }
 // Currently unused, might be useful if the color to highlight becomes customisable by the user.
 // Function is both used to highlight (set as to be removed from wordcount) and used to un-highlight (set as included in wordcount)
